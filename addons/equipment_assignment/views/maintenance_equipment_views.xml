@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_maintenance_equipment_form_assignment" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.assignment</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="hr_maintenance.maintenance_equipment_view_form_inherit_hr"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_issue" type="object" string="Видано" class="btn-primary" groups="hr.group_hr_user" invisible="employee_id or department_id or not active"/>
+                    <button name="action_return" type="object" string="Повернути" groups="hr.group_hr_user" invisible="not employee_id"/>
+                </header>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_assignments" type="object" class="oe_stat_button" icon="fa-history" groups="hr.group_hr_user">
+                    <field name="assignment_count" widget="statinfo"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='employee_id']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='assign_date']" position="attributes">
+                <attribute name="readonly">1</attribute>
+                <attribute name="groups"/>
+                <attribute name="invisible">not employee_id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='assign_date']" position="after">
+                <field name="assignment_days" invisible="not employee_id"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="assignment_history" string="Історія видачі" groups="hr.group_hr_user">
+                    <field name="assignment_ids" readonly="1">
+                        <list create="0" edit="0" delete="0">
+                            <field name="employee_id"/>
+                            <field name="issue_date"/>
+                            <field name="return_date"/>
+                            <field name="days_held"/>
+                            <field name="state" widget="badge"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_employee_form_assignment" model="ir.ui.view">
+        <field name="name">hr.employee.form.assignment</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_maintenance.hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(maintenance.hr_equipment_action)d']" position="attributes">
+                <attribute name="context">{'search_default_employee_id': id}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

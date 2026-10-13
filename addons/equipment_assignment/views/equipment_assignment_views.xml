@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_equipment_assignment_search" model="ir.ui.view">
+        <field name="name">equipment.assignment.search</field>
+        <field name="model">equipment.assignment</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="equipment_id"/>
+                <field name="employee_id"/>
+                <filter name="issued" string="Видано" domain="[('state', '=', 'issued')]"/>
+                <filter name="returned" string="Повернуто" domain="[('state', '=', 'returned')]"/>
+                <group expand="0" string="Групувати за">
+                    <filter name="group_equipment" string="Основним засобом" context="{'group_by': 'equipment_id'}"/>
+                    <filter name="group_employee" string="Співробітником" context="{'group_by': 'employee_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_equipment_assignment_list" model="ir.ui.view">
+        <field name="name">equipment.assignment.list</field>
+        <field name="model">equipment.assignment</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-muted="state == 'returned'">
+                <field name="equipment_id"/>
+                <field name="employee_id"/>
+                <field name="issue_date"/>
+                <field name="return_date"/>
+                <field name="days_held"/>
+                <field name="state" widget="badge" decoration-success="state == 'issued'"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equipment_assignment_form" model="ir.ui.view">
+        <field name="name">equipment.assignment.form</field>
+        <field name="model">equipment.assignment</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0" duplicate="0">
+                <header>
+                    <button name="action_return" type="object" string="Повернути" class="btn-primary" invisible="state == 'returned'"/>
+                    <button name="action_print_issue" type="object" string="Акт видачі ОЗ"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="equipment_id"/>
+                            <field name="employee_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="issue_date"/>
+                            <field name="return_date"/>
+                            <field name="days_held"/>
+                            <field name="issued_by"/>
+                            <field name="returned_by" invisible="state != 'returned'"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_equipment_assignment_kanban" model="ir.ui.view">
+        <field name="name">equipment.assignment.kanban</field>
+        <field name="model">equipment.assignment</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="equipment_id" create="0" edit="0" delete="0" quick_create="0" records_draggable="0" group_create="0" group_edit="0" group_delete="0">
+                <templates>
+                    <t t-name="card">
+                        <field name="equipment_id" class="fw-bold"/>
+                        <field name="employee_id"/>
+                        <div>Видано: <field name="issue_date"/></div>
+                        <div>Повернуто: <field name="return_date"/></div>
+                        <div>Днів: <field name="days_held"/></div>
+                        <field name="state" widget="badge"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_equipment_assignment" model="ir.actions.act_window">
+        <field name="name">Історія видачі ОЗ</field>
+        <field name="res_model">equipment.assignment</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="view_equipment_assignment_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Видайте обладнання з його картки.</p>
+        </field>
+    </record>
+    <menuitem id="menu_equipment_assignment" name="Історія видачі ОЗ"
+              parent="maintenance.menu_maintenance_title"
+              action="action_equipment_assignment" groups="hr.group_hr_user" sequence="15"/>
+</odoo>

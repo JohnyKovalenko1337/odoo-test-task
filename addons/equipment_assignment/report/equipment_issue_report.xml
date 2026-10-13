@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_equipment_issue" model="ir.actions.report">
+        <field name="name">Акт видачі ОЗ</field>
+        <field name="model">equipment.assignment</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">equipment_assignment.report_equipment_issue</field>
+        <field name="report_file">equipment_assignment.report_equipment_issue</field>
+        <field name="binding_model_id" ref="model_equipment_assignment"/>
+        <field name="binding_type">report</field>
+        <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
+        <field name="print_report_name">'Акт видачі ОЗ - %s' % object.id</field>
+    </record>
+
+    <template id="report_equipment_issue">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Акт видачі ОЗ № <span t-out="o.id"/></h2>
+                        <p>Дата видачі: <span t-field="o.issue_date"/></p>
+                        <p>Компанія: <span t-field="o.company_id.name"/></p>
+                        <p>Співробітник: <strong t-field="o.employee_id.name"/></p>
+                        <p t-if="o.employee_id.department_id">Підрозділ: <span t-field="o.employee_id.department_id.name"/></p>
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr><th>Основний засіб</th><th>Модель</th><th>Серійний номер</th><th>Кількість</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span t-field="o.equipment_id.name"/></td>
+                                    <td><span t-field="o.equipment_id.model"/></td>
+                                    <td><span t-field="o.equipment_id.serial_no"/></td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="mt-4">Обладнання передано співробітнику для використання.</p>
+                        <div class="row mt-5">
+                            <div class="col-6">Передав: <span t-field="o.issued_by.name"/><br/><br/>Підпис: __________________</div>
+                            <div class="col-6">Отримав: <span t-field="o.employee_id.name"/><br/><br/>Підпис: __________________</div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

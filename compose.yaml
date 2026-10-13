@@ -1,0 +1,44 @@
+name: equipment-assignment
+services:
+  db:
+    image: postgres:16@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94
+    environment:
+      POSTGRES_USER: ${DB_USER:-odoo}
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  web:
+    image: odoo:18.0@sha256:60eb1b5006df85f900e300b6cc120d51ebd979379ee9588340adc2a84ffcd718
+    entrypoint: ["python3", "/workspace/scripts/container.py"]
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-odoo}
+      DB_NAME: ${DB_NAME:-equipment_assignment}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MASTER_PASSWORD: ${MASTER_PASSWORD:?Set MASTER_PASSWORD in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
+    volumes:
+      - ./addons:/mnt/extra-addons:ro
+      - ./scripts:/workspace/scripts:ro
+      - ./config:/workspace/config:ro
+      - odoo-data:/var/lib/odoo
+    ports: ["127.0.0.1:${ODOO_PORT:-38069}:8069"]
+    networks: [backend, web]
+    depends_on:
+      db:
+        condition: service_healthy
+networks:
+  backend:
+    internal: true
+  web: {}
+volumes:
+  db-data:
+  odoo-data:

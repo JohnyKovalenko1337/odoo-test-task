@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="equipment_assignment_company_rule" model="ir.rule">
+        <field name="name">Видачі обладнання: компанії користувача</field>
+        <field name="model_id" ref="model_equipment_assignment"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>
